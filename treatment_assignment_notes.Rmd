@@ -1,0 +1,88 @@
+---
+title: "Treatment Selection"
+author: "Jimmy Larson"
+date: "8/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(randomizr)
+set.seed(222)
+```
+
+## Introduction
+
+This document describes the process for randomly assigning treatments in preharvest fruit drop study, in August, 2020. This study looks at xylem function, gene expression and fruit drop rates in Red Delicious following the application of ethephon, an ethylene generating compound; aminoethoxyvinilglycine (AVG), an ethylene inhibitor; napthalene acetic acid (NAA), a synthetic auxin; and an untreated control. The package randomizr, was used to assign treatments.
+
+## Tree and Treatment Selection
+
+Sixty uniform trees were selected from an existing block of Red Delicious trees. There are 4 treatments: ethephon, AVG, NAA, and an untreated control. Each rep is a group of 3 trees and there are 5 reps total. The two outside tree per plot are used for fruit collection and the center tree is used to track fruit drop. These trees are comprised within 3 rows. Row and tree number were put into a spread sheet and loaded.
+
+```{r, message=FALSE}
+trees <- read_csv("data/plot_map_tree_selection.csv")
+```
+
+The number of plots was determined by dividing the total number of trees by 3 (the number of trees per plot):
+
+```{r}
+plots <- as.data.frame(seq(1:(nrow(trees)/3)))
+```
+
+## Treatment Randomization
+
+Treatments were randomized using the randomizr package. First a seed was set to recreate randomization assignment.
+
+```{r}
+set.seed(222)
+```
+
+A complete randomized design was used for the study, using the complete_ra function: N is the number of treatment groups in the study, num_arms is the number of treatments (4) and conditions is the name of the treatments (control, AVG, NAA, ethephon).
+
+```{r}
+N <- nrow(plots)
+Z <- as.data.frame(complete_ra(N = N, num_arms = 4, conditions = c("ctrl", "avg", "naa", "ethephon")))
+```
+
+## Map Creation
+
+Randomized assigned treatment plots were then added to the dataset of the selected trees:
+
+```{r}
+plots <- cbind(plots, Z)
+plots %>%
+  rename(plot = `seq(1:(nrow(trees)/3))`,
+         treatment = `complete_ra(N = N, num_arms = 4, conditions = c("ctrl", "avg", "naa", "ethephon"))`) -> plots
+
+treatments <- left_join(trees, plots, by = "plot")
+```
+
+Reps were then assigned to trees:
+
+```{r}
+treatments %>%
+  group_by(treatment) %>%
+  mutate(rep = rep(1:5, each = 3)) -> treatments
+head(treatments)
+```
+
+Flag colors were then added to the data frame
+
+```{r}
+treatments %>%
+  mutate(flag = case_when(treatment == "naa" ~ "OrangeWhite",
+                          treatment == "ethephon" ~ "BlackWhite",
+                          treatment == "avg" ~ "BlueBlack",
+                          treatment == "ctrl" ~ "Pink")) -> treatments
+head(treatments)
+```
+
+Finally a plot map was created...
+
+```{r, eval=FALSE}
+write_csv(treatments, file.path("plot_map/pfd_plot_map_fall_2020.csv"))
+```
