@@ -39,3 +39,9 @@ map %>%
   select(row, plot, treatment, rep, flag) %>%
   arrange(rep, match(treatment, treatmentCat)) -> brix
 write_csv(brix, file.path("plot_map/pfd_brix_data_sheet.csv"))
+### dye
+dye <- quality[rep(seq_len(nrow(quality)), each = 6),]
+dye %>%
+  mutate(fruit = seq(1,6)) %>%
+  arrange(rep, match(treatment, treatmentCat))-> dye
+write_csv(dye, file.path("plot_map/pfd_dye_data_sheet.csv"))
