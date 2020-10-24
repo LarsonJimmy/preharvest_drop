@@ -8,6 +8,7 @@ library(tidyverse)
 library(ggpubr)
 library(car)
 library(lubridate)
+library(RColorBrewer)
 ## load data----
 dropAug25 <- read_csv("data/2020/dropCounts/pfd_fruit_drop_counts_aug_25.csv")
 dropSep1 <- read_csv("data/2020/dropCounts/pfd_fruit_drop_counts_sep_1.csv")
@@ -91,90 +92,287 @@ summary.aov(drops.aov) # treatment*date interaction is significant, analyze with
 #### Aug 25----
 dropAug25.aov <- aov(perDropAug25 ~ treatment, data = drops)
 summary.aov(dropAug25.aov)
+Aug25Model <- data.frame(fit = fitted(dropAug25.aov),
+                         res = resid(dropAug25.aov),
+                         treat = drops$treatment)
 #### test normality
-plot(dropAug25.aov, 2)
+Aug25QQ <- ggplot(drops, aes(sample = perDropAug25)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       title = "QQ Plot") +
+  theme_bw()
 dropAug25.resid <- residuals(object = dropAug25.aov)
-shapiro.test(x = dropAug25.resid) ## p < 0.05
+#shapiro.test(x = dropAug25.resid)## p < 0.05
+shapiro.test(x = sqrt(dropAug25.resid)) ## p > 0.05
 ##### test homogeniety of variance
-plot(dropAug25.aov, 1)
+Aug25Resid <- ggplot(Aug25Model, aes(x = fit, y = res, colour = treat))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values",
+       colour = "Treatment", 
+       title = "Residuals vs. Fitted")+
+  theme_bw()
 leveneTest(perDropAug25 ~ treatment, data = drops) ## p > 0.05
+#### mean separation
+dropAug25.norm.aov <- aov(sqrt(perDropAug25) ~ treatment, data = drops) # had to transform data with sqrt to normalize
+TukeyHSD(dropAug25.norm.aov)
 #### Sep 1----
 dropSep1.aov <- aov(perDropSep1 ~ treatment, data = drops)
 summary.aov(dropSep1.aov)
+Sep1Model <- data.frame(fit = fitted(dropSep1.aov),
+                         res = resid(dropSep1.aov),
+                         treat = drops$treatment)
 ##### test normality
-plot(dropSep1.aov, 2)
+Sep1QQ <- ggplot(drops, aes(sample = perDropSep1)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       title = "QQ Plot") +
+  theme_bw()
 dropSep1.resid <- residuals(object = dropSep1.aov)
 shapiro.test(x = dropSep1.resid) ## p > 0.05
 ##### test homogeniety of variance
-plot(dropSep1.aov, 1)
+Sep1Resid <- ggplot(Sep1Model, aes(x = fit, y = res, colour = treat))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values",
+       colour = "Treatment", 
+       title = "Residuals vs. Fitted")+
+  theme_bw()
 leveneTest(perDropSep1 ~ treatment, data = drops) ## p > 0.05
+#### mean separation
+TukeyHSD(dropSep1.aov)
 #### Sep 8----
 dropSep8.aov <- aov(perDropSep8 ~ treatment, data = drops)
 summary.aov(dropSep8.aov)
+Sep8Model <- data.frame(fit = fitted(dropSep8.aov),
+                        res = resid(dropSep8.aov),
+                        treat = drops$treatment)
 #### test normality
-plot(dropSep8.aov, 2)
+Sep8QQ <- ggplot(drops, aes(sample = perDropSep8)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       title = "QQ Plot") +
+  theme_bw()
 dropSep8.resid <- residuals(object = dropSep8.aov)
 shapiro.test(x = dropSep8.resid) ## p > 0.05
 ##### test homogeniety of variance
-plot(dropSep8.aov, 1)
+Sep8Resid <- ggplot(Sep8Model, aes(x = fit, y = res, colour = treat))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values",
+       colour = "Treatment", 
+       title = "Residuals vs. Fitted")+
+  theme_bw()
 leveneTest(perDropSep8 ~ treatment, data = drops) ## p > 0.05
+#### mean separation
+TukeyHSD(dropSep8.aov)
 #### Sep 15----
 dropSep15.aov <- aov(perDropSep15 ~ treatment, data = drops)
 summary.aov(dropSep15.aov)
+Sep15Model <- data.frame(fit = fitted(dropSep15.aov),
+                        res = resid(dropSep15.aov),
+                        treat = drops$treatment)
 #### test normality
-plot(dropSep15.aov, 2)
+Sep15QQ <- ggplot(drops, aes(sample = perDropSep15)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       title = "QQ Plot") +
+  theme_bw()
 dropSep15.resid <- residuals(object = dropSep15.aov)
 shapiro.test(x = dropSep15.resid)## p > 0.05
 ##### test homogeniety of variance
-plot(dropSep15.aov, 1)
+Sep15Resid <- ggplot(Sep15Model, aes(x = fit, y = res, colour = treat))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values",
+       colour = "Treatment", 
+       title = "Residuals vs. Fitted")+
+  theme_bw()
 leveneTest(perDropSep15 ~ treatment, data = drops) ## p > 0.05
+#### mean separation
+TukeyHSD(dropSep15.aov)
 #### Sep 22----
 dropSep22.aov <- aov(perDropSep22 ~ treatment, data = drops)
 summary.aov(dropSep22.aov)
+Sep22Model <- data.frame(fit = fitted(dropSep22.aov),
+                        res = resid(dropSep22.aov),
+                        treat = drops$treatment)
 #### test normality
-plot(dropSep22.aov, 2)
+Sep22QQ <- ggplot(drops, aes(sample = perDropSep22)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       title = "QQ Plot") +
+  theme_bw()
 dropSep22.resid <- residuals(object = dropSep22.aov)
-shapiro.test(x = dropSep22.resid) ## p<0.05
+#shapiro.test(x = dropSep22.resid) ## p<0.05
+shapiro.test(x = (dropSep22.resid)^(-.5)) ## p>0.05
 ##### test homogeniety of variance
-plot(dropSep22.aov, 1)
+Sep22Resid <- ggplot(Sep22Model, aes(x = fit, y = res, colour = treat))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values",
+       colour = "Treatment", 
+       title = "Residuals vs. Fitted")+
+  theme_bw()
 leveneTest(perDropSep22 ~ treatment, data = drops) ## p > 0.05
+#### mean separation
+dropSep22.norm.aov <- aov((perDropSep22)^(-.5) ~ treatment, data = drops) ## used 1/sqrt() to normalize
+TukeyHSD(dropSep22.norm.aov)
 #### Sep 29----
 dropSep29.aov <- aov(perDropSep29 ~ treatment, data = drops)
 summary.aov(dropSep29.aov)
+Sep29Model <- data.frame(fit = fitted(dropSep29.aov),
+                        res = resid(dropSep29.aov),
+                        treat = drops$treatment)
 #### test normality
-plot(dropSep29.aov, 2)
+Sep29QQ <- ggplot(drops, aes(sample = perDropSep29)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       title = "QQ Plot") +
+  theme_bw()
 dropSep29.resid <- residuals(object = dropSep29.aov)
 shapiro.test(x = dropSep29.resid) ## p>0.05
 ##### test homogeniety of variance
-plot(dropSep29.aov, 1)
+Sep29Resid <- ggplot(Sep29Model, aes(x = fit, y = res, colour = treat))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values",
+       colour = "Treatment", 
+       title = "Residuals vs. Fitted")+
+  theme_bw()
 leveneTest(perDropSep29 ~ treatment, data = drops) ## p > 0.05
+#### mean separation
+TukeyHSD(dropSep29.aov)
 #### Oct 7----
 dropOct7.aov <- aov(perDropOct7 ~ treatment, data = drops)
 summary.aov(dropOct7.aov)
+Oct7Model <- data.frame(fit = fitted(dropOct7.aov),
+                         res = resid(dropOct7.aov),
+                         treat = drops$treatment)
 #### test normality
-plot(dropOct7.aov, 2)
+Oct7QQ <- ggplot(drops, aes(sample = perDropOct7)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       title = "QQ Plot") +
+  theme_bw()
 dropOct7.resid <- residuals(object = dropOct7.aov)
 shapiro.test(x = dropOct7.resid) ## p>0.05
 ##### test homogeniety of variance
-plot(dropOct7.aov, 1)
+Oct7Resid <- ggplot(Oct7Model, aes(x = fit, y = res, colour = treat))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values",
+       colour = "Treatment", 
+       title = "Residuals vs. Fitted")+
+  theme_bw()
 leveneTest(perDropOct7 ~ treatment, data = drops) ## p > 0.05
+#### mean separation
+TukeyHSD(dropOct7.aov)
 #### Oct 13----
 dropOct13.aov <- aov(perDropOct13 ~ treatment, data = drops)
 summary.aov(dropOct13.aov)
+Oct13Model <- data.frame(fit = fitted(dropOct13.aov),
+                         res = resid(dropOct13.aov),
+                         treat = drops$treatment)
 #### test normality
-plot(dropOct13.aov, 2)
+Oct13QQ <- ggplot(drops, aes(sample = perDropOct13)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       title = "QQ Plot") +
+  theme_bw()
 dropOct13.resid <- residuals(object = dropOct13.aov)
 shapiro.test(x = dropOct13.resid) ## p>0.05
 ##### test homogeniety of variance
-plot(dropOct13.aov, 1)
+Oct13Resid <- ggplot(Oct13Model, aes(x = fit, y = res, colour = treat))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values",
+       colour = "Treatment", 
+       title = "Residuals vs. Fitted")+
+  theme_bw()
 leveneTest(perDropOct13 ~ treatment, data = drops) ## p > 0.05
+#### mean separation
+TukeyHSD(dropOct13.aov)
 #### Oct 21----
 dropOct21.aov <- aov(perDropOct21 ~ treatment, data = drops)
 summary.aov(dropOct21.aov)
+Oct21Model <- data.frame(fit = fitted(dropOct21.aov),
+                         res = resid(dropOct21.aov),
+                         treat = drops$treatment)
 #### test normality
-plot(dropOct21.aov, 2)
+Oct21QQ <- ggplot(drops, aes(sample = perDropOct21)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       title = "QQ Plot") +
+  theme_bw()
 dropOct21.resid <- residuals(object = dropOct21.aov)
 shapiro.test(x = dropOct21.resid) ## p>0.05
 ##### test homogeniety of variance
-plot(dropOct21.aov, 1)
+Oct21Resid <- ggplot(Oct21Model, aes(x = fit, y = res, colour = treat))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values",
+       colour = "Treatment", 
+       title = "Residuals vs. Fitted")+
+  theme_bw()
 leveneTest(perDropOct21 ~ treatment, data = drops) ## p > 0.05
+#### mean separation
+TukeyHSD(dropOct21.aov)
+
+ggarrange(Aug25QQ, Aug25Resid, Oct21QQ, Oct21Resid)
+
+## plot data----
+treatmentCat <- c("ctrl", "avg", "naa", "ethephon")
+sep <- c(rep("a", times = 20), rep(c("a", "b", "b", "a"), times = 4))
+dropsLong %>%
+  group_by(date, treatment) %>%
+  summarise(avg.drop = mean(drops)) %>%
+  arrange(date, match(treatment, treatmentCat)) %>%
+  add_column(sep = sep) %>%
+  ggplot(aes(x = date, y = avg.drop, color = treatment)) +
+  geom_point() +
+  geom_line() +
+  geom_text(aes(x = date, y= avg.drop + 5, label = c(rep(".", times = 20), rep(c("a", "b", "b", "a"), times = 4))), vjust=1, color="black",
+            position = position_dodge(2), size= 5,parse = T) +
+  scale_color_brewer(palette = "RdYlBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+  labs(y = "Cumulative Percent Drop (%)",
+       x = "Date",
+       color = "Treatment")+
+  theme_bw()
+  
