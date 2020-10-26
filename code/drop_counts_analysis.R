@@ -9,6 +9,13 @@ library(ggpubr)
 library(car)
 library(lubridate)
 library(RColorBrewer)
+#install.packages("ggrepel")
+library(ggrepel)
+#install.packages("hrbrthemes")
+library(hrbrthemes)
+devtools::install_github('cttobin/ggthemr')
+## plotting theme----
+theme_jl <- theme_ipsum_ps(grid="XY", axis="xy", axis_text_size = 10, axis_title_size = 11, axis_col = "black")
 ## load data----
 dropAug25 <- read_csv("data/2020/dropCounts/pfd_fruit_drop_counts_aug_25.csv")
 dropSep1 <- read_csv("data/2020/dropCounts/pfd_fruit_drop_counts_sep_1.csv")
@@ -83,7 +90,7 @@ ggplot(dropsLong, aes(x = treatment, y = drops)) +
   facet_wrap(~ date, scales = "free") +
   labs(y = "Percent Fruit Drop (%)",
        x = "Treatment") +
-  theme_bw()
+  theme_jl()
 ## Analyze and plot drop percent----
 ### anova test
 drops.aov <- aov(drops ~ treatment*date, data = dropsLong)
@@ -102,7 +109,7 @@ Aug25QQ <- ggplot(drops, aes(sample = perDropAug25)) +
   labs(y = "Sample",
        x = "Theoretical Quantiles",
        title = "QQ Plot") +
-  theme_bw()
+  theme_jl()
 dropAug25.resid <- residuals(object = dropAug25.aov)
 #shapiro.test(x = dropAug25.resid)## p < 0.05
 shapiro.test(x = sqrt(dropAug25.resid)) ## p > 0.05
@@ -115,7 +122,7 @@ Aug25Resid <- ggplot(Aug25Model, aes(x = fit, y = res, colour = treat))+
        x = "Fitted Values",
        colour = "Treatment", 
        title = "Residuals vs. Fitted")+
-  theme_bw()
+  theme_jl()
 leveneTest(perDropAug25 ~ treatment, data = drops) ## p > 0.05
 #### mean separation
 dropAug25.norm.aov <- aov(sqrt(perDropAug25) ~ treatment, data = drops) # had to transform data with sqrt to normalize
@@ -133,7 +140,7 @@ Sep1QQ <- ggplot(drops, aes(sample = perDropSep1)) +
   labs(y = "Sample",
        x = "Theoretical Quantiles",
        title = "QQ Plot") +
-  theme_bw()
+  theme_jl()
 dropSep1.resid <- residuals(object = dropSep1.aov)
 shapiro.test(x = dropSep1.resid) ## p > 0.05
 ##### test homogeniety of variance
@@ -145,7 +152,7 @@ Sep1Resid <- ggplot(Sep1Model, aes(x = fit, y = res, colour = treat))+
        x = "Fitted Values",
        colour = "Treatment", 
        title = "Residuals vs. Fitted")+
-  theme_bw()
+  theme_jl()
 leveneTest(perDropSep1 ~ treatment, data = drops) ## p > 0.05
 #### mean separation
 TukeyHSD(dropSep1.aov)
@@ -162,7 +169,7 @@ Sep8QQ <- ggplot(drops, aes(sample = perDropSep8)) +
   labs(y = "Sample",
        x = "Theoretical Quantiles",
        title = "QQ Plot") +
-  theme_bw()
+  theme_jl()
 dropSep8.resid <- residuals(object = dropSep8.aov)
 shapiro.test(x = dropSep8.resid) ## p > 0.05
 ##### test homogeniety of variance
@@ -174,7 +181,7 @@ Sep8Resid <- ggplot(Sep8Model, aes(x = fit, y = res, colour = treat))+
        x = "Fitted Values",
        colour = "Treatment", 
        title = "Residuals vs. Fitted")+
-  theme_bw()
+  theme_jl()
 leveneTest(perDropSep8 ~ treatment, data = drops) ## p > 0.05
 #### mean separation
 TukeyHSD(dropSep8.aov)
@@ -191,7 +198,7 @@ Sep15QQ <- ggplot(drops, aes(sample = perDropSep15)) +
   labs(y = "Sample",
        x = "Theoretical Quantiles",
        title = "QQ Plot") +
-  theme_bw()
+  theme_jl()
 dropSep15.resid <- residuals(object = dropSep15.aov)
 shapiro.test(x = dropSep15.resid)## p > 0.05
 ##### test homogeniety of variance
@@ -203,7 +210,7 @@ Sep15Resid <- ggplot(Sep15Model, aes(x = fit, y = res, colour = treat))+
        x = "Fitted Values",
        colour = "Treatment", 
        title = "Residuals vs. Fitted")+
-  theme_bw()
+  theme_jl()
 leveneTest(perDropSep15 ~ treatment, data = drops) ## p > 0.05
 #### mean separation
 TukeyHSD(dropSep15.aov)
@@ -220,7 +227,7 @@ Sep22QQ <- ggplot(drops, aes(sample = perDropSep22)) +
   labs(y = "Sample",
        x = "Theoretical Quantiles",
        title = "QQ Plot") +
-  theme_bw()
+  theme_jl()
 dropSep22.resid <- residuals(object = dropSep22.aov)
 #shapiro.test(x = dropSep22.resid) ## p<0.05
 shapiro.test(x = (dropSep22.resid)^(-.5)) ## p>0.05
@@ -233,7 +240,7 @@ Sep22Resid <- ggplot(Sep22Model, aes(x = fit, y = res, colour = treat))+
        x = "Fitted Values",
        colour = "Treatment", 
        title = "Residuals vs. Fitted")+
-  theme_bw()
+  theme_jl()
 leveneTest(perDropSep22 ~ treatment, data = drops) ## p > 0.05
 #### mean separation
 dropSep22.norm.aov <- aov((perDropSep22)^(-.5) ~ treatment, data = drops) ## used 1/sqrt() to normalize
@@ -251,7 +258,7 @@ Sep29QQ <- ggplot(drops, aes(sample = perDropSep29)) +
   labs(y = "Sample",
        x = "Theoretical Quantiles",
        title = "QQ Plot") +
-  theme_bw()
+  theme_jl()
 dropSep29.resid <- residuals(object = dropSep29.aov)
 shapiro.test(x = dropSep29.resid) ## p>0.05
 ##### test homogeniety of variance
@@ -263,7 +270,7 @@ Sep29Resid <- ggplot(Sep29Model, aes(x = fit, y = res, colour = treat))+
        x = "Fitted Values",
        colour = "Treatment", 
        title = "Residuals vs. Fitted")+
-  theme_bw()
+  theme_jl()
 leveneTest(perDropSep29 ~ treatment, data = drops) ## p > 0.05
 #### mean separation
 TukeyHSD(dropSep29.aov)
@@ -280,7 +287,7 @@ Oct7QQ <- ggplot(drops, aes(sample = perDropOct7)) +
   labs(y = "Sample",
        x = "Theoretical Quantiles",
        title = "QQ Plot") +
-  theme_bw()
+  theme_jl()
 dropOct7.resid <- residuals(object = dropOct7.aov)
 shapiro.test(x = dropOct7.resid) ## p>0.05
 ##### test homogeniety of variance
@@ -292,7 +299,7 @@ Oct7Resid <- ggplot(Oct7Model, aes(x = fit, y = res, colour = treat))+
        x = "Fitted Values",
        colour = "Treatment", 
        title = "Residuals vs. Fitted")+
-  theme_bw()
+  theme_jl()
 leveneTest(perDropOct7 ~ treatment, data = drops) ## p > 0.05
 #### mean separation
 TukeyHSD(dropOct7.aov)
@@ -309,7 +316,7 @@ Oct13QQ <- ggplot(drops, aes(sample = perDropOct13)) +
   labs(y = "Sample",
        x = "Theoretical Quantiles",
        title = "QQ Plot") +
-  theme_bw()
+  theme_jl()
 dropOct13.resid <- residuals(object = dropOct13.aov)
 shapiro.test(x = dropOct13.resid) ## p>0.05
 ##### test homogeniety of variance
@@ -321,7 +328,7 @@ Oct13Resid <- ggplot(Oct13Model, aes(x = fit, y = res, colour = treat))+
        x = "Fitted Values",
        colour = "Treatment", 
        title = "Residuals vs. Fitted")+
-  theme_bw()
+  theme_jl()
 leveneTest(perDropOct13 ~ treatment, data = drops) ## p > 0.05
 #### mean separation
 TukeyHSD(dropOct13.aov)
@@ -338,7 +345,7 @@ Oct21QQ <- ggplot(drops, aes(sample = perDropOct21)) +
   labs(y = "Sample",
        x = "Theoretical Quantiles",
        title = "QQ Plot") +
-  theme_bw()
+  theme_jl()
 dropOct21.resid <- residuals(object = dropOct21.aov)
 shapiro.test(x = dropOct21.resid) ## p>0.05
 ##### test homogeniety of variance
@@ -350,12 +357,13 @@ Oct21Resid <- ggplot(Oct21Model, aes(x = fit, y = res, colour = treat))+
        x = "Fitted Values",
        colour = "Treatment", 
        title = "Residuals vs. Fitted")+
-  theme_bw()
+  theme_jl()
 leveneTest(perDropOct21 ~ treatment, data = drops) ## p > 0.05
 #### mean separation
 TukeyHSD(dropOct21.aov)
 
-ggarrange(Aug25QQ, Aug25Resid, Oct21QQ, Oct21Resid)
+ggarrange(Aug25QQ, Aug25Resid, Sep1QQ, Sep1Resid, Sep8QQ, Sep8Resid, Sep15QQ, Sep15Resid, Sep22QQ, Sep22Resid,
+          Sep29QQ, Sep29Resid, Oct21QQ, Oct21Resid)
 
 ## plot data----
 treatmentCat <- c("ctrl", "avg", "naa", "ethephon")
@@ -368,11 +376,13 @@ dropsLong %>%
   ggplot(aes(x = date, y = avg.drop, color = treatment)) +
   geom_point() +
   geom_line() +
-  geom_text(aes(x = date, y= avg.drop + 5, label = c(rep(".", times = 20), rep(c("a", "b", "b", "a"), times = 4))), vjust=1, color="black",
-            position = position_dodge(2), size= 5,parse = T) +
-  scale_color_brewer(palette = "RdYlBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+  geom_text_repel(aes(x = date, y= avg.drop, label = c(rep(NA, times = 16), "a", "a", "a", "a",
+                                                       rep(c("a", "b", "b", "a"), times = 4))), vjust=1, color="black",
+            position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
+  scale_color_brewer(palette = "RdBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
   labs(y = "Cumulative Percent Drop (%)",
        x = "Date",
-       color = "Treatment")+
-  theme_bw()
-  
+       color = "Treatment",
+       title = "Cumulative Fruit Drop")+
+  theme_jl
+ggsave("figs/drops_plot.png")
