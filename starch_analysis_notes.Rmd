@@ -1,0 +1,411 @@
+---
+title: "Starch Content Analysis"
+author: "Jimmy Larson"
+date: "10/29/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This is a file that describes the process for analyzing fruit firmness for a preharvest drop study conducted from Aug.-Oct. 2020 on Red Delicious apples. 12 total fruit from the outside 2 trees per plot these fruit had their internal ethylene concentrations and firmness measured, juice from each apple in a treatment by rep combination was collected and had their brix measured using a refractometer. Following firmness, each fruit was cut in half equatorially and dipped into a starch iodine solution. Staining pattern was evaluated on a 1-8 scale:
+
+* August 28
+
+* September 1
+
+* September 7
+
+* September 14
+
+* September 21
+
+* September 29
+
+* October 12 
+
+Below is the Cornell Starch Iodine Staining index...
+
+![Cornell Starch Iodine Staining index](Cornell-Starch-Index.jpg)
+
+## Join Data
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+## load packages----
+library(tidyverse)
+library(ggpubr)
+library(car)
+library(lubridate)
+library(RColorBrewer)
+library(ggrepel)
+library(hrbrthemes)
+library(latex2exp)
+## plotting theme----
+theme_jl <- theme_ipsum_ps(grid="XY", axis="xy", axis_text_size = 10, axis_title_size = 11, axis_col = "black")
+## load data----
+starchAug28 <- read_csv("data/2020/starch/pfd_starch_aug_28.csv")
+starchSep1 <- read_csv("data/2020/starch/pfd_starch_sep_1.csv")
+starchSep7 <- read_csv("data/2020/starch/pfd_starch_sep_7.csv")
+starchSep14 <- read_csv("data/2020/starch/pfd_starch_sep_1.csv")
+starchSep21 <- read_csv("data/2020/starch/pfd_starch_sep_21.csv")
+starchSep29 <- read_csv("data/2020/starch/pfd_starch_sep_29.csv")
+starchOct12 <- read_csv("data/2020/starch/pfd_starch_oct_12.csv")
+```
+
+Data was joined for each measurement date starting with the first, Aug. 28
+
+```{r, warning=FALSE, message=FALSE}
+starchAug28 %>%
+  rename(starchAug28 = starch) %>%
+  left_join(starchSep1) %>%
+  rename(starchSep1 = starch) %>%
+  left_join(starchSep7) %>%
+  rename(starchSep7 = stach) %>%
+  left_join(starchSep14) %>%
+  rename(starchSep14 = starch) %>%
+  left_join(starchSep21) %>%
+  rename(starchSep21 = starch) %>%
+  left_join(starchSep29) %>%
+  rename(starchSep29 = starch) %>%
+  select(treatment, rep, fruit, starchAug28, starchSep1, starchSep7, starchSep14, starchSep21, starchSep29) %>%
+  left_join(starchOct12) %>%
+  rename(starchOct12 = starch) %>%
+  select(treatment, rep, fruit, starchAug28, starchSep1, starchSep7, starchSep14, starchSep21, starchSep29,
+         starchOct12) -> starch
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+starch %>%
+  gather('starchAug28', 'starchSep1', 'starchSep7', 'starchSep14', 'starchSep21', 'starchSep29',
+         'starchOct12', key = "measDate", value = "starch") %>%
+  mutate(date = case_when(measDate == 'starchAug28' ~ mdy("8/28/2020"),
+                          measDate == 'starchSep1' ~ mdy("9/1/2020"),
+                          measDate == 'starchSep7' ~ mdy("9/7/2020"),
+                          measDate == 'starchSep14' ~ mdy("9/14/2020"),
+                          measDate == 'starchSep21' ~ mdy("9/21/2020"),
+                          measDate == 'starchSep29' ~ mdy("9/29/2020"),
+                          measDate == 'starchOct12' ~ mdy("10/12/2020"))) %>%
+  select(treatment, rep, date, starch) -> starchLong
+```
+## Explore Data
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, fig.width= 10, fig.height=10}
+ggplot(starchLong, aes(x = treatment, y =starch, fill = treatment)) +
+         geom_boxplot() +
+         facet_wrap(~date, scales = "free") +
+         scale_fill_brewer(palette = "RdYlBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+         labs(y = "Starch Staining Rating",
+              x = "Treatment",
+              fill = "Treatment") +
+         theme_jl
+```
+
+## ANOVA Assumptions
+
+### ANOVA Model
+
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+starchAug28.aov <- aov(starchAug28 ~ treatment, data = starch)
+```
+
+### Normality Check
+
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+starchAug28.resid <- residuals(object = starchAug28.aov)
+shapiro.test(x = starchAug28.resid)
+```
+
+### Homogeneity of Variance Check
+
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+leveneTest(starchAug28 ~ treatment, data = starch)
+```
+
+### **Aug. 28**
+
+Shaprio-Wilkes test was significant, but levene's test was not...
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+starchAug28.aov <- aov(starchAug28 ~ treatment, data = starch)
+Aug28Model <- data.frame(fit = fitted(starchAug28.aov),
+                         res = resid(starchAug28.aov))
+#### normality check
+Aug28QQ <- ggplot(starch, aes(sample = starchAug28)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       subtitle = "QQ Plot-Aug. 28") +
+  theme_jl
+starchAug28.resid <- residuals(object = starchAug28.aov)
+shapiro.test(x = starchAug28.resid)
+#### homogeneity of variance check
+Aug28Resid <- ggplot(Aug28Model, aes(x = fit, y = res))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values", 
+       subtitle = "Residuals-Aug. 28")+
+  theme_jl
+leveneTest(starchAug28 ~ treatment, data = starch)
+```
+
+### **Sep. 1**
+
+Shaprio-Wilkes test was significant, but levene's test was not...
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+starchSep1.aov <- aov(starchSep1 ~ treatment, data = starch)
+Sep1Model <- data.frame(fit = fitted(starchSep1.aov),
+                         res = resid(starchSep1.aov))
+#### normality check
+Sep1QQ <- ggplot(starch, aes(sample = starchSep1)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       subtitle = "QQ Plot-Sep. 1") +
+  theme_jl
+starchSep1.resid <- residuals(object = starchSep1.aov)
+shapiro.test(x = starchSep1.resid)
+#### homogeneity of variance check
+Sep1Resid <- ggplot(Sep1Model, aes(x = fit, y = res))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values", 
+       subtitle = "Residuals-Sep. 1")+
+  theme_jl
+leveneTest(starchSep1 ~ treatment, data = starch)
+```
+
+### **Sep. 7**
+
+Both tests were significant...
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+starchSep7.aov <- aov(starchSep7 ~ treatment, data = starch)
+Sep7Model <- data.frame(fit = fitted(starchSep7.aov),
+                        res = resid(starchSep7.aov))
+#### normality check
+Sep7QQ <- ggplot(starch, aes(sample = starchSep7)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       subtitle = "QQ Plot-Sep. 7") +
+  theme_jl
+starchSep7.resid <- residuals(object = starchSep7.aov)
+shapiro.test(x = starchSep7.resid)
+#### homogeneity of variance check
+Sep7Resid <- ggplot(Sep7Model, aes(x = fit, y = res))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values", 
+       subtitle = "Residuals-Sep. 7")+
+  theme_jl
+leveneTest(starchSep7 ~ treatment, data = starch)
+```
+
+### **Sep. 14**
+
+Shaprio-Wilkes test was significant, but levene's test was not...
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+starchSep14.aov <- aov(starchSep14 ~ treatment, data = starch)
+Sep14Model <- data.frame(fit = fitted(starchSep14.aov),
+                        res = resid(starchSep14.aov))
+#### normality check
+Sep14QQ <- ggplot(starch, aes(sample = starchSep14)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       subtitle = "QQ Plot-Sep. 14") +
+  theme_jl
+starchSep14.resid <- residuals(object = starchSep14.aov)
+shapiro.test(x = starchSep14.resid)
+#### homogeneity of variance check
+Sep14Resid <- ggplot(Sep14Model, aes(x = fit, y = res))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values", 
+       subtitle = "Residuals-Sep. 14")+
+  theme_jl
+leveneTest(starchSep14 ~ treatment, data = starch)
+```
+
+### **Sep. 21**
+
+Shaprio-Wilkes test was significant, but levene's test was not...
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+starchSep21.aov <- aov(starchSep21 ~ treatment, data = starch)
+Sep21Model <- data.frame(fit = fitted(starchSep21.aov),
+                        res = resid(starchSep21.aov))
+#### normality check
+Sep21QQ <- ggplot(starch, aes(sample = starchSep21)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       subtitle = "QQ Plot-Sep. 21") +
+  theme_jl
+starchSep21.resid <- residuals(object = starchSep21.aov)
+shapiro.test(x = starchSep21.resid)
+#### homogeneity of variance check
+Sep21Resid <- ggplot(Sep21Model, aes(x = fit, y = res))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values", 
+       subtitle = "Residuals-Sep. 21")+
+  theme_jl
+leveneTest(starchSep21 ~ treatment, data = starch)
+```
+
+### **Sep. 29**
+
+Both tests were significant...
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+starchSep29.aov <- aov(starchSep29 ~ treatment, data = starch)
+Sep29Model <- data.frame(fit = fitted(starchSep29.aov),
+                        res = resid(starchSep29.aov))
+#### normality check
+Sep29QQ <- ggplot(starch, aes(sample = starchSep29)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       subtitle = "QQ Plot-Sep. 29") +
+  theme_jl
+starchSep29.resid <- residuals(object = starchSep29.aov)
+shapiro.test(x = starchSep29.resid)
+#### homogeneity of variance check
+Sep29Resid <- ggplot(Sep29Model, aes(x = fit, y = res))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values", 
+       subtitle = "Residuals-Sep. 29")+
+  theme_jl
+leveneTest(starchSep29 ~ treatment, data = starch)
+```
+
+### **Oct. 12**
+
+Both tests were significant...
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+starchOct12.aov <- aov(starchOct12 ~ treatment, data = starch)
+Oct12Model <- data.frame(fit = fitted(starchOct12.aov),
+                        res = resid(starchOct12.aov))
+#### normality check
+Oct12QQ <- ggplot(starch, aes(sample = starchOct12)) + 
+  stat_qq() +
+  stat_qq_line() +
+  labs(y = "Sample",
+       x = "Theoretical Quantiles",
+       subtitle = "QQ Plot-Oct. 12") +
+  theme_jl
+starchOct12.resid <- residuals(object = starchOct12.aov)
+shapiro.test(x = starchOct12.resid)
+#### homogeneity of variance check
+Oct12Resid <- ggplot(Oct12Model, aes(x = fit, y = res))+
+  geom_point()+
+  geom_hline(yintercept = 0, colour = "pink")+
+  scale_color_brewer(palette = "RdYlBu")+
+  labs(y = "Residuals",
+       x = "Fitted Values", 
+       subtitle = "Residuals-Oct. 12")+
+  theme_jl
+leveneTest(starchOct12 ~ treatment, data = starch)
+```
+
+## Treatment Separation
+
+### **Aug. 28**
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+kruskal.test(starchAug28~ treatment, data = starch) #p<0.05
+pairwise.wilcox.test(starch$starchAug28, starch$treatment, p.adjust.method = "BH")
+```
+
+### **Sep. 1**
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+kruskal.test(starchSep1~ treatment, data = starch) #p<0.05
+pairwise.wilcox.test(starch$starchSep1, starch$treatment, p.adjust.method = "BH")
+```
+
+### **Sep. 7**
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+kruskal.test(starchSep7~ treatment, data = starch) #p<0.05
+pairwise.wilcox.test(starch$starchSep7, starch$treatment, p.adjust.method = "BH")
+```
+
+### **Sep. 14**
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+kruskal.test(starchSep14~ treatment, data = starch) #p<0.05
+pairwise.wilcox.test(starch$starchSep14, starch$treatment, p.adjust.method = "BH")
+```
+
+### **Sep. 21**
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+kruskal.test(starchSep21~ treatment, data = starch) #p>0.05
+pairwise.wilcox.test(starch$starchSep21, starch$treatment, p.adjust.method = "BH")
+```
+
+### **Sep. 29**
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+kruskal.test(starchSep29~ treatment, data = starch) #p<0.05
+pairwise.wilcox.test(starch$starchSep29, starch$treatment, p.adjust.method = "BH")
+```
+
+### **Oct. 12**
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+kruskal.test(starchOct12~ treatment, data = starch) #p<0.05
+pairwise.wilcox.test(starch$starchOct12, starch$treatment, p.adjust.method = "BH")
+```
+
+## Figure
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+treatmentCat <- c("ctrl", "avg", "naa", "ethephon")
+starchLong %>%
+  drop_na(starch) %>%
+  group_by(date, treatment) %>%
+  summarise(avg.starch = mean(starch)) %>%
+  arrange(date, match(treatment, treatmentCat)) -> starch.avg
+ggplot(starch.avg, aes(x = date, y = avg.starch, color = treatment)) +
+  geom_point() +
+  geom_line() +
+  geom_text_repel(aes(x = date, y= avg.starch, label = TeX(c(rep("a*", times = 4), "ab*", "b*", "b*", "a*", "b*", "b*", "b*", "a*",
+                                                              "ab*", "b*", "b*", "a*", rep("a*", times = 4),
+                                                             rep(c("a*", "b*", "a*", "a*"), times = 2)), output = "character")), vjust=1,
+                 color="black", position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
+  scale_color_brewer(palette = "RdBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+  labs(y = "Starch Stain Rating",
+       x = "Date",
+       color = "Treatment",
+       title = "Starch Staining Pattern Ratings",
+       subtitle = "Mean Values of Each Treatment by Date",
+       caption = "*Kruskal-Wallis test")+
+  theme_jl
+```
