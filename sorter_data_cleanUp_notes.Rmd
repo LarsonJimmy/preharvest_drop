@@ -1,0 +1,121 @@
+---
+title: "Fruit Sorter Data Clean Up"
+author: "Jimmy Larson"
+date: "11/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggpubr)
+library(car)
+library(lubridate)
+library(RColorBrewer)
+library(ggrepel)
+library(hrbrthemes)
+library(latex2exp)
+```
+
+
+## Introduction
+
+This is file describes the script that takes cleans data from a fruit sorting line. Near infrared spectroscopy and cameras are used to calculate fruit size quality parameters. The sorter provides a .csv file for each experimental unit that runs through the sorter line. All files are placed into a folder. This script takes each of those files in the folder, selects fruit weight, length, diameter, blush percentage, and apple quality; then binds each file together.
+
+## User Inputs
+
+The user puts the folder info into the path, sets what they want to save the file as, a determines the pattern from the file name to add to the data frame. 
+
+```{r, message=FALSE}
+path <- "data/2020/sorter/20PFD_H.-2/" # enter path here
+saveFile <- "sorter_data_aug28.csv" # enter info to save file as
+pattern <- "_\\w+_...." # set pattern to extract treatment and rep info from file name
+```
+
+## For Loop 
+
+Before beginning the for loop, a list of file names and the number of files were set as files...
+
+```{r, message=FALSE}
+fileName <- list.files(path= path, pattern="*.csv", full.names=TRUE, recursive=FALSE)
+nFiles <- length(fileName)
+```
+
+An output file was then initiated...
+
+```{r, message=FALSE}
+out.file <- ""
+```
+
+A for loop was then created...
+
+```{r, message=FALSE, warning=FALSE}
+for (i in 1:nFiles) {
+  ## load in data
+  file <- read_delim(fileName[i], ";", escape_double = FALSE, trim_ws = TRUE)
+  ## select rows----
+  file <- file[grep(">|<", file$ClassName),]
+  ## extract treatment info from filename----
+  string <- fileName[i]
+  trt <- regmatches(string, regexpr(pattern, string))
+  ## add treatment info to file----
+  file %>%
+    mutate(treatment_rep = trt) %>%
+    separate(treatment_rep, sep = "_", into = c("blank","treatment", "rep")) %>%
+    select(treatment, rep, ClassName, Weight, BlushPercentage, Diameter, AppleQuality, Length) -> file
+  ## bind files together
+  out.file <- rbind(out.file, file)
+}
+out.file <- out.file[-1,]
+```
+
+Here is the resulting data frame...
+
+```{R, message = FALSE}
+head(out.file)
+```
+
+## Steps in For Loop
+
+Each file was read in...
+
+```{r, eval=FALSE}
+file <- read_delim(fileName[i], ";", escape_double = FALSE, trim_ws = TRUE)
+```
+
+The important data was selected from the rest of the file...
+
+```{r, eval=FALSE}
+file <- file[grep(">|<", file$ClassName),]
+```
+
+Treatment info was extracted from the file name...
+
+```{r, eval=FALSE}
+  string <- fileName[i]
+  trt <- regmatches(string, regexpr(pattern, string))
+```
+
+Treatment info was then added into the dataframe and columns were selected...
+
+```{r, eval=FALSE}
+  file %>%
+    mutate(treatment_rep = trt) %>%
+    separate(treatment_rep, sep = "_", into = c("blank","treatment", "rep")) %>%
+    select(treatment, rep, ClassName, Weight, BlushPercentage, Diameter, AppleQuality, Length) -> file
+```
+
+Files are then binded together in output file...
+
+```{r, eval=FALSE}
+out.file <- rbind(out.file, file)
+```
+
+## Output File
+
+The top blank line that was used to initiate the output file was deleted and the full data frame was saved...
+
+```{r, eval=FALSE}
+out.file <- out.file[-1,]
+write.csv(out.file, saveFile)
+```
