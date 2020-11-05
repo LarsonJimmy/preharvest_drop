@@ -273,3 +273,4 @@ brixLong %>%
        color = "Treatment",
        title = "Soluble Solids Content")+
   theme_jl
+ggsave("brix_plot.png")

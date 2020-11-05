@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-This is a file that describes the process for analyzing fruit firmness for a preharvest drop study conducted from Aug.-Oct. 2020 on Red Delicious apples. 12 total fruit from the outside 2 trees per plot these fruit had their internal ethylene concentrations and firmness measured, juice from each apple in a treatment by rep combination was collected and had their brix measured using a refractometer. Following firmness, each fruit was cut in half equatorially and dipped into a starch iodine solution. Staining pattern was evaluated on a 1-8 scale:
+This is a file that describes the process for analyzing fruit starch content for a preharvest drop study conducted from Aug.-Oct. 2020 on Red Delicious apples. 12 total fruit from the outside 2 trees per plot these fruit had their internal ethylene concentrations and firmness measured, juice from each apple in a treatment by rep combination was collected and had their brix measured using a refractometer. Following firmness, each fruit was cut in half equatorially and dipped into a starch iodine solution. Staining pattern was evaluated on a 1-8 scale:
 
 * August 28
 

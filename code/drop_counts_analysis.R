@@ -1,7 +1,7 @@
 # Preharvest Drop: Drop Count Data Analysis
 # author: Jimmy Larson
 # created: 10/23/20
-# last edited: 10/23/20
+# last edited: 10/26/20
 
 ## load packages----
 library(tidyverse)
