@@ -392,7 +392,7 @@ dropsLong %>%
   geom_text_repel(aes(x = date, y= avg.drop, label = c(rep(NA, times = 16), "a", "a", "a", "a",
                                                        rep(c("a", "b", "b", "a"), times = 4))), vjust=1, color="black",
             position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
-  scale_color_brewer(palette = "RdBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+  scale_color_brewer(palette = "Set2", labels = c("AVG", "Control", "Ethephon", "NAA")) +
   labs(y = "Cumulative Percent Drop (%)",
        x = "Date",
        color = "Treatment",

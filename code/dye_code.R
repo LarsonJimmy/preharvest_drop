@@ -251,7 +251,7 @@ ggplot(dye.med, aes(x = date, y = avg.primary, color = treatment)) +
   geom_text_repel(aes(x = date, y= avg.primary, label = TeX(c(rep("a*", times = 16), "bc*", "a*", "b*", "c*", "b*", "a*", "a*", "c*",
                                                             rep("a*", times = 4)), output = "character")), vjust=1,
                   color="black", position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
-  scale_color_brewer(palette = "RdBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+  scale_color_brewer(palette = "Set2", labels = c("AVG", "Control", "Ethephon", "NAA")) +
   labs(y = "No. of Stained Primary Vessels",
        x = "Date",
        color = "Treatment",
@@ -268,7 +268,7 @@ ggplot(dye.med, aes(x = date, y = avg.dorsal, color = treatment)) +
   geom_text_repel(aes(x = date, y= avg.dorsal, label = TeX(c(rep("a*", times = 16),  "ab*", "a*", "b*", "b*",
                                                              rep("a*", times = 4), "b*", "a*", "b*", "b*"), output = "character")), vjust=1,
                   color="black", position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
-  scale_color_brewer(palette = "RdBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+  scale_color_brewer(palette = "Set2", labels = c("AVG", "Control", "Ethephon", "NAA")) +
   labs(y = "No. of Stained Dorsal Vessels",
        x = "Date",
        color = "Treatment",

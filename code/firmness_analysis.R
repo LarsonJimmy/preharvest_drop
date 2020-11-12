@@ -291,8 +291,8 @@ ggplot(firm.med, aes(x = date, y = med.firmness, color = treatment)) +
                                                           "a*", "b*", "ab*", "ab*", "a*", "c*", "b*", "b*", "a*",
                                                           "c*", "b*"), output = "character")), vjust=1,
                   color="black", position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
-  scale_color_brewer(palette = "RdBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
-  labs(y = "Firmness",
+  scale_color_brewer(palette = "Set2", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+  labs(y = "Firmness (lbs)",
        x = "Date",
        color = "Treatment",
        title = "Fruit Firmness",

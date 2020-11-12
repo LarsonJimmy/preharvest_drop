@@ -536,7 +536,7 @@ ggplot(log.iec.med, aes(x = date, y = med.iec, color = treatment)) +
   geom_text_repel(aes(x = date, y= med.iec, label = TeX(c("b", "b", "b", "a", "b*", "b*", "b*", "a*",
                       rep(c("a*", "b*", "a*", "a*"), times = 5)), output = "character")), vjust=1, color="black",
                   position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
-  scale_color_brewer(palette = "RdBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+  scale_color_brewer(palette = "Set2", labels = c("AVG", "Control", "Ethephon", "NAA")) +
   labs(y = "LN of IEC (ppm)",
        x = "Date",
        color = "Treatment",

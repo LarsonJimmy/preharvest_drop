@@ -324,7 +324,7 @@ ggplot(blush.med, aes(x = date, y = med.blush, color = treatment)) +
   geom_line() +
   geom_text_repel(aes(x = date, y= med.blush, label = TeX(c(rep("a*", times = 28)), output = "character")), vjust=1,
                   color="black", position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
-  scale_color_brewer(palette = "RdBu", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+  scale_color_brewer(palette = "Set2", labels = c("AVG", "Control", "Ethephon", "NAA")) +
   labs(y = "Blush (%)",
        x = "Date",
        color = "Treatment",
