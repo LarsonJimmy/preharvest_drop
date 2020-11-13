@@ -388,6 +388,8 @@ dropsLong %>%
   geom_point() +
   geom_line() +
   geom_vline(xintercept = mdy("8/26/2020"), colour = "pink", linetype = "dashed") +
+  geom_vline(xintercept = mdy("9/16/2020"), colour = "green") +
+  annotate("text", x = mdy("9/16/2020") - 1, y = 30, label = "Harvest Date", angle = 90, size = 3) +
   annotate("text", x = mdy("8/26/2020") - 1, y = 30, label = "Treatment Application", angle = 90, size = 3) +
   geom_text_repel(aes(x = date, y= avg.drop, label = c(rep(NA, times = 16), "a", "a", "a", "a",
                                                        rep(c("a", "b", "b", "a"), times = 4))), vjust=1, color="black",
@@ -398,4 +400,4 @@ dropsLong %>%
        color = "Treatment",
        title = "Cumulative Fruit Drop")+
   theme_jl
-ggsave("figs/drops_plot.png")
+ggsave("figs/drops_plot2.png")

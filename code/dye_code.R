@@ -248,6 +248,8 @@ dyeLong %>%
 ggplot(dye.med, aes(x = date, y = avg.primary, color = treatment)) +
   geom_point() +
   geom_line() +
+  geom_vline(xintercept = mdy("9/29/2020"), colour = "red") +
+  annotate("text", x = mdy("9/29/2020") - 1, y = 3.25, label = "Begin drop", angle = 90, size = 3) +
   geom_text_repel(aes(x = date, y= avg.primary, label = TeX(c(rep("a*", times = 16), "bc*", "a*", "b*", "c*", "b*", "a*", "a*", "c*",
                                                             rep("a*", times = 4)), output = "character")), vjust=1,
                   color="black", position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
@@ -259,12 +261,14 @@ ggplot(dye.med, aes(x = date, y = avg.primary, color = treatment)) +
        subtitle = "Mean Values of Each Treatment by Date",
        caption = "*Kruskal-Wallis test")+
   theme_jl
-ggsave("figs/primary_bundles_plot.png")  
+ggsave("figs/primary_bundles_plot2.png")  
 
 ### dorsal----
 ggplot(dye.med, aes(x = date, y = avg.dorsal, color = treatment)) +
   geom_point() +
   geom_line() +
+  geom_vline(xintercept = mdy("9/29/2020"), colour = "red") +
+  annotate("text", x = mdy("9/29/2020") - 1, y = 3.25, label = "Begin drop", angle = 90, size = 3) +
   geom_text_repel(aes(x = date, y= avg.dorsal, label = TeX(c(rep("a*", times = 16),  "ab*", "a*", "b*", "b*",
                                                              rep("a*", times = 4), "b*", "a*", "b*", "b*"), output = "character")), vjust=1,
                   color="black", position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
@@ -276,4 +280,4 @@ ggplot(dye.med, aes(x = date, y = avg.dorsal, color = treatment)) +
        subtitle = "Mean Values of Each Treatment by Date",
        caption = "*Kruskal-Wallis test")+
   theme_jl
-ggsave("figs/dorsal_bundles_plot.png")  
+ggsave("figs/dorsal_bundles_plot2.png")  
