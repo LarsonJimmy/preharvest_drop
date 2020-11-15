@@ -53,6 +53,6 @@ meanTemps %>%
   labs(y = "Avg. Temp. (°F)",
        x = "Month",
        color = "Measurement Period",
-       title = "Average Montly Temperature")+
+       title = "Average Monthly Temperature")+
   theme_jl
 ggsave("figs/temp_plot.png")  
