@@ -281,3 +281,21 @@ ggplot(dye.med, aes(x = date, y = avg.dorsal, color = treatment)) +
        caption = "*Kruskal-Wallis test")+
   theme_jl
 ggsave("figs/dorsal_bundles_plot2.png")  
+## total bundles
+dyeLong %>%
+  drop_na(primary) %>%
+  mutate(bundle = dorsal + primary) %>%
+  group_by(date, treatment) %>%
+  summarise(avg.bundle = mean(bundle)) %>%
+  arrange(date, match(treatment, treatmentCat)) %>%
+  ggplot(aes(x = date, y = avg.bundle, color = treatment)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = mdy("9/29/2020"), colour = "red") +
+  annotate("text", x = mdy("9/29/2020") - 1, y = 7.5, label = "Begin Drop", angle = 90, size = 3) +
+  scale_color_brewer(palette = "Dark2", labels = c("AVG", "Control", "Ethephon", "NAA")) +
+  labs(y = "No. of Stained Bundles",
+       x = "Date",
+       color = "Treatment")+
+  theme_jl
+ggsave("figs/total_bundles.png")  
