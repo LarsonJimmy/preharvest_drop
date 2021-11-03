@@ -160,6 +160,8 @@ dropsLong %>%
   ggplot(aes(x = date, y = meanDrops, color = treatment)) +
   geom_point()+
   geom_line()+
+  geom_vline(xintercept = mdy("8/25/2021"), colour = "pink", linetype = "dashed") +
+  annotate("text", x = mdy("8/25/2021") - 1, y = 30, label = "Treatment Application", angle = 90, size = 3) +
   geom_text_repel(aes(x = date, y= meanDrops, label = c(rep(NA, times = 16), "a", "b", "a", "ab","a", "b", "a", "a")), vjust=1, color="black",
                   position = position_dodge(2), size= 3,parse = T, min.segment.length = 1.9) +
   scale_color_brewer(palette = "Set2", labels = c("AVG", "Control", "Ethephon", "NAA")) +
